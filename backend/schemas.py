@@ -26,3 +26,4 @@ class TrendDay(BaseModel):
 
 class ExceptionDetailResponse(ExceptionResponse):
     last_7_days: List[TrendDay]
+    

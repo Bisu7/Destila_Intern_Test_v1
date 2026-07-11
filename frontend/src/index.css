@@ -1,0 +1,156 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #121212;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.app-header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 1rem;
+}
+
+.day-group {
+  margin-bottom: 1.5rem;
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.day-header {
+  padding: 1rem 1.5rem;
+  background-color: #252525;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  user-select: none;
+}
+
+.day-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.badge-count {
+  background-color: #444;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.toggle-icon {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.day-content {
+  padding: 0.5rem;
+}
+
+.row-layout {
+  display: grid;
+  grid-template-columns: 1.5fr 1.5fr 1fr 1fr 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.table-header {
+  font-size: 0.85rem;
+  color: #888;
+  text-transform: uppercase;
+  border-bottom: 1px solid #333;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.exception-row {
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.exception-row:hover {
+  background-color: #2a2a2a;
+}
+
+.exception-row.selected {
+  background-color: #333;
+  border-left: 4px solid #3b82f6;
+}
+
+.font-bold {
+  font-weight: 600;
+}
+
+.text-red {
+  color: #ef4444;
+}
+
+.severity-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.severity-high {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.severity-medium {
+  background-color: rgba(234, 179, 8, 0.2);
+  color: #fde047;
+  border: 1px solid rgba(234, 179, 8, 0.5);
+}
+
+.status-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+  background-color: #444;
+}
+
+.status-open {
+  background-color: #374151;
+  color: #d1d5db;
+}
+
+.status-acknowledged {
+  background-color: #1e3a8a;
+  color: #93c5fd;
+}
+
+.status-resolved {
+  background-color: #064e3b;
+  color: #6ee7b7;
+}
+
+.error {
+  color: #ef4444;
+  padding: 1rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  border-radius: 8px;
+}
