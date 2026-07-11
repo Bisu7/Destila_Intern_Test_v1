@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float, Date
+from sqlalchemy import Column, Integer, String, Float, Date, DateTime, UniqueConstraint
+from sqlalchemy.sql import func
 from .database import Base
 
 class RawProductionPlan(Base):
@@ -32,3 +33,19 @@ class ActualProduction(Base):
     plant_id = Column(String)
     product_code = Column(String)
     units_produced = Column(Integer)
+
+class ExceptionRecord(Base):
+    __tablename__ = "exceptions"
+    id = Column(Integer, primary_key=True, index=True)
+    product_code = Column(String, nullable=False)
+    date = Column(Date, nullable=False)
+    planned_units = Column(Float, nullable=False)
+    actual_units = Column(Integer, nullable=False)
+    deficit_pct = Column(Float, nullable=False)
+    severity = Column(String, nullable=False)
+    status = Column(String, default="open", nullable=False)
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    
+    __table_args__ = (
+        UniqueConstraint('product_code', 'date', name='uq_product_date'),
+    )
