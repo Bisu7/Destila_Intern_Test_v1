@@ -19,10 +19,12 @@ flowchart TD
     C -->|Cleaned| E[actual_production]
     D -->|Cleaned| F[production_plan]
     
-    E & F -->|Calculate Deficits| G[exceptions table]
+    E -->|Calculate Deficits| G[exceptions table]
+    F -->|Calculate Deficits| G
     
     G --> H[FastAPI]
-    E & F -->|7-Day Trend Query| H
+    E -.->|7-Day Trend Query| H
+    F -.->|7-Day Trend Query| H
     
     H -->|GET / PATCH| I[React Inbox UI]
 ```
