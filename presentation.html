@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Exception Inbox - Presentation</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: #f9fafb;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #111827;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            margin-top: 3rem;
+            color: #2563eb;
+        }
+
+        .section-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2rem;
+        }
+
+        .placeholder-box {
+            background: #e5e7eb;
+            border: 2px dashed #9ca3af;
+            border-radius: 8px;
+            padding: 4rem 2rem;
+            text-align: center;
+            color: #4b5563;
+            font-weight: 500;
+            margin: 1.5rem 0;
+        }
+
+        code {
+            background-color: #f3f4f6;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        ul {
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .diagram-container {
+            background: #1e1e1e;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Mini Exception Inbox: Final Presentation</h1>
+    <p><em>Welcome! This presentation covers the end-to-end development of the Mini Exception Inbox.</em></p>
+
+    <div class="section-card">
+        <h2>1. Demo of the App Working End-to-End</h2>
+        <p>This section demonstrates the functional application, including the filterable daily timeline, the 7-day
+            trend side panel, and the real-time status updates.</p>
+
+        <div class="placeholder-box">
+            <video width="100%" height="100%" overflow="hidden" object-fit="cover" controls autoplay muted loop
+                playsinline src="PresentationVideo.mp4"></video>
+        </div>
+
+        <ul>
+            <li><strong>The Inbox View:</strong> Exceptions are grouped by date, sorting the newest first.</li>
+            <li><strong>Filters:</strong> Users can filter by Product Code and Severity dynamically.</li>
+            <li><strong>Actionable UI:</strong> Clicking a row opens the detail panel to Acknowledge or Resolve the
+                issue without reloading the page.</li>
+        </ul>
+    </div>
+
+    <div class="section-card">
+        <h2>2. Process Flow Diagram</h2>
+        <p>This diagram maps how raw CSVs are ingested, cleaned, processed into exceptions, and served to the user.</p>
+
+        <div class="diagram-container">
+            CSVs → Raw Tables → Clean Tables
+            │
+            ▼
+            Calculate Deficits
+            │
+            ▼
+            exceptions table
+            │
+            ▼
+            FastAPI Backend
+            │
+            ▼
+            React Inbox UI
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2>3. Database Schema & Key Decisions</h2>
+        <p>The database relies on SQLite for zero-configuration, local persistence. I maintained a strict separation of
+            concerns:</p>
+        <ul>
+            <li><code>raw_production_plan</code> & <code>raw_actual_production</code>: Exact, untouched replicas of the
+                CSVs. <em>(Decision: Always keep raw data for auditability.)</em></li>
+            <li><code>production_plan</code> & <code>actual_production</code>: Cleaned tables where column names are
+                normalized and invalid rows are dropped.</li>
+            <li><code>exceptions</code>: The materialized table storing computed deficits and operational statuses
+                (<code>open</code>, <code>acknowledged</code>, <code>resolved</code>).</li>
+        </ul>
+        <p><strong>Key Decision (Idempotency):</strong> The ingestion and detection scripts were designed to be fully
+            idempotent. The <code>exceptions</code> table uses a unique constraint on <code>(product_code, date)</code>.
+            This prevents data duplication and protects manual status updates if the pipeline is re-run.</p>
+    </div>
+
+    <div class="section-card">
+        <h2>4. Process, Data Findings, and Tradeoffs</h2>
+
+        <h3>Data Findings & Cleaning</h3>
+        <ul>
+            <li><strong>Duplicates:</strong> Found 13 exact duplicate rows in the plan CSV. I dropped them to prevent
+                skewed targets.</li>
+            <li><strong>Invalid Targets:</strong> Found rows with zero/negative planned units and nulls. These were
+                discarded since a deficit cannot be calculated against a non-positive target.</li>
+            <li><strong>Mismatched Date Ranges:</strong> The actual production data only ran through Q1 (2017), whereas
+                the plan data ran for a full year. <strong>I chose to skip plan rows without matching actuals</strong>
+                rather than treating them as "0 produced." Treating them as 0 would have flooded the inbox with 9 months
+                of false-positive exceptions.</li>
+        </ul>
+
+        <h3>Tradeoffs</h3>
+        <ul>
+            <li><strong>No Heavy ORM Relationships:</strong> I kept the SQLAlchemy models flat to adhere strictly to the
+                "no over-abstraction" rule. Direct queries were fast and sufficient for this scale.</li>
+            <li><strong>Vanilla CSS over UI Libraries:</strong> Instead of heavy dependencies like Tailwind or Material
+                UI, I used plain CSS to deliver a fast, clean interface focused on functionality.</li>
+        </ul>
+    </div>
+
+    <div class="section-card">
+        <h2>5. What I Would Do Differently (Next Steps)</h2>
+        <p>If I had more time to expand this project, I would implement the following:</p>
+        <ul>
+            <li><strong>Data Visualization:</strong> Replace the HTML table for the 7-day trend with a lightweight
+                charting library (like Recharts) for quicker visual insights.</li>
+            <li><strong>Pagination:</strong> Implement server-side pagination or infinite scroll on the
+                <code>/exceptions</code> endpoint to handle larger datasets gracefully.
+            </li>
+            <li><strong>Authentication & Logging:</strong> Add basic JWT authentication to track <em>which</em> operator
+                acknowledged or resolved an exception.</li>
+            <li><strong>Automated Testing:</strong> Build out a pytest suite for the pipeline logic to guarantee edge
+                cases (like the Q1 date cutoff) remain stable during refactors.</li>
+        </ul>
+    </div>
+
+</body>
+
+</html>
