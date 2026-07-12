@@ -3,13 +3,14 @@ import SeverityBadge from './SeverityBadge';
 
 const API_BASE = 'http://localhost:8000';
 
-export default function ExceptionDetail({ exceptionId, onClose }) {
+export default function ExceptionDetail({ exceptionId, onClose, onStatusUpdate }) {
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     setLoading(true);
+    setError(null);
     fetch(`${API_BASE}/exceptions/${exceptionId}`)
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch exception details');
@@ -25,6 +26,28 @@ export default function ExceptionDetail({ exceptionId, onClose }) {
       });
   }, [exceptionId]);
 
+  const handleStatusUpdate = (newStatus) => {
+    setError(null); // clear any previous errors
+    fetch(`${API_BASE}/exceptions/${exceptionId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error(`Failed to update status to ${newStatus}`);
+      return res.json();
+    })
+    .then(updatedException => {
+      setDetail(prev => ({ ...prev, status: updatedException.status }));
+      if (onStatusUpdate) {
+        onStatusUpdate(updatedException);
+      }
+    })
+    .catch(err => {
+      setError(err.message);
+    });
+  };
+
   return (
     <div className="detail-panel">
       <div className="detail-header">
@@ -33,9 +56,11 @@ export default function ExceptionDetail({ exceptionId, onClose }) {
       </div>
 
       {loading && <div className="detail-content">Loading...</div>}
+      
+      {/* If error on initial load or patch, display it prominently here */}
       {error && <div className="detail-content error">{error}</div>}
       
-      {!loading && !error && detail && (
+      {!loading && detail && (
         <div className="detail-content">
           <div className="detail-summary">
             <h3>{detail.product_code}</h3>
@@ -48,6 +73,25 @@ export default function ExceptionDetail({ exceptionId, onClose }) {
             <p>
               <strong>Status:</strong> <span className={`status-badge status-${detail.status}`}>{detail.status}</span>
             </p>
+          </div>
+
+          <div className="action-buttons">
+            {detail.status !== 'acknowledged' && detail.status !== 'resolved' && (
+              <button 
+                onClick={() => handleStatusUpdate('acknowledged')} 
+                className="btn btn-ack"
+              >
+                Acknowledge
+              </button>
+            )}
+            {detail.status !== 'resolved' && (
+              <button 
+                onClick={() => handleStatusUpdate('resolved')} 
+                className="btn btn-resolve"
+              >
+                Resolve
+              </button>
+            )}
           </div>
 
           <div className="trend-section">
