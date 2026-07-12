@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import DayGroup from './DayGroup';
+import ExceptionDetail from './ExceptionDetail';
 
 const API_BASE = 'http://localhost:8000';
 
@@ -38,16 +39,27 @@ export default function ExceptionInbox() {
   const orderedDates = [...new Set(exceptions.map(e => e.date))];
 
   return (
-    <div className="inbox">
-      {orderedDates.map(date => (
-        <DayGroup 
-          key={date} 
-          date={date} 
-          exceptions={grouped[date]} 
-          selectedExceptionId={selectedExceptionId}
-          onSelectException={setSelectedExceptionId}
-        />
-      ))}
+    <div className="inbox-layout">
+      <div className="inbox-main">
+        {orderedDates.map(date => (
+          <DayGroup 
+            key={date} 
+            date={date} 
+            exceptions={grouped[date]} 
+            selectedExceptionId={selectedExceptionId}
+            onSelectException={setSelectedExceptionId}
+          />
+        ))}
+      </div>
+
+      {selectedExceptionId && (
+        <div className="inbox-side">
+          <ExceptionDetail 
+            exceptionId={selectedExceptionId} 
+            onClose={() => setSelectedExceptionId(null)}
+          />
+        </div>
+      )}
     </div>
   );
 }
